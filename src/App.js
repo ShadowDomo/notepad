@@ -12,10 +12,12 @@ function App() {
   }
 
   //TODO save old state, and compare with new state. helps to prevent sending when data hasn't changed
-
+  // todo make server not receive entire text each update, but only additions
   // todo make scaleable, key in params
   // saves the notepad periodically
   async function sendToServer() {
+    // temp
+    if (key.length == 0) return
     const payLoad = { key: key, data: data }
     const result = await fetch('http://localhost:3001/', {
       body: JSON.stringify(payLoad),
@@ -42,6 +44,7 @@ function App() {
   useEffect(() => {
     const temp = async () => {
       const serverData = await getFromServer(key)
+      console.log(serverData)
       setData(serverData)
     }
 
@@ -56,6 +59,8 @@ function App() {
 
   // gets data for the given key from server
   async function getFromServer(key) {
+    // temp 
+    if (key.length == 0) return
     const payload = { key: key }
     const result = await fetch('http://localhost:3001/get', {
       body: JSON.stringify(payload),

@@ -25,7 +25,6 @@ function authorizeDB() {
     scopes
   );
 
-
   // Use the JWT client to generate an access token.
   jwtClient.authorize(function (error, tokens) {
     if (error) {
@@ -36,67 +35,55 @@ function authorizeDB() {
       accessToken = tokens.access_token;
     }
   });
+
+  console.log(accessToken)
 }
 
-authorizeDB();
+// authorizeDB();
 
 app.use(express.json())
 app.use(cors())
 
-app.post('/', (req, res) => {
-  console.log(req.body)
-  res.send(JSON.stringify('ok'))
+// POST TO DB
+app.post('/', async (req, res) => {
+  writetoDB(req.body)
+  res.send(JSON.stringify('o'))
   // res.send(JSON.stringify('hello world'))
 })
 
-app.post('/get', (req, res) => {
-  console.log(req.body)
-  res.send(JSON.stringify('ok'))
+
+// GET FROM DB
+app.post('/get', async (req, res) => {
+  authorizeDB()
+  const key = req.body.key
+  const result = await getFromDB(key)
+  if (!result) {
+    res.send(JSON.stringify(''))
+  } else {
+    res.send(JSON.stringify(result))
+  }
+  // console.log(result)
   // res.send(JSON.stringify('hello world'))
 })
 
-// // Gets the exercises for the given workout key
-// app.get('/get/:key', async (req, res) => {
-//   try {
-//     const result = await getFromDB(req.params.key)
-//     if (result === null) {
-//       res.send(JSON.stringify({ error: 'error' }));
-//     } else {
-//       res.send(result)
-//       console.log(result)
-//     }
-//   } catch (error) {
-//     authorizeDB()
-//   }
-// })
-
-
-async function writetoDB(value) {
-  let parsed = JSON.parse(value)
-  const key = parsed.key
-  const exercises = parsed.exercises;
+async function writetoDB(obj) {
+  const key = obj.key
+  const data = obj.data
   // console.table(value)
-  const result = await fetch(`https://fitnessbackend-fad7d-default-rtdb.firebaseio.com/test/${key}.json?access_token=${accessToken}`, {
+  const result = await fetch(`https://fitnessbackend-fad7d-default-rtdb.firebaseio.com/notepad/${key}.json?access_token=${accessToken}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
       // 'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: JSON.stringify(exercises)
+    body: JSON.stringify(data)
   })
-  console.log(await result.json())
+  // console.log(await result.json())
 }
 
 
 async function getFromDB(key) {
-  const result = await fetch(`https://fitnessbackend-fad7d-default-rtdb.firebaseio.com/test/${key}.json?access_token=${accessToken}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-      // 'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    // body: JSON.stringify(test)
-  })
+  const result = await fetch(`https://fitnessbackend-fad7d-default-rtdb.firebaseio.com/notepad/${key}.json?access_token=${accessToken}`)
   return await result.json()
 }
 
