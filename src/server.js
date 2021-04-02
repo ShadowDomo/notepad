@@ -16,7 +16,7 @@ var scopes = [
 ];
 
 let accessToken;
-function authorizeDB() {
+async function authorizeDB() {
   // Authenticate a JWT client with the service account.
   var jwtClient = new google.auth.JWT(
     serviceAccount.client_email,
@@ -24,6 +24,7 @@ function authorizeDB() {
     serviceAccount.private_key,
     scopes
   );
+
 
   // Use the JWT client to generate an access token.
   jwtClient.authorize(function (error, tokens) {
@@ -33,13 +34,13 @@ function authorizeDB() {
       console.log("Provided service account does not have permission to generate access tokens");
     } else {
       accessToken = tokens.access_token;
+      console.log(accessToken)
+      start()
     }
   });
-
-  console.log(accessToken)
 }
 
-// authorizeDB();
+authorizeDB();
 
 app.use(express.json())
 app.use(cors())
@@ -52,9 +53,9 @@ app.post('/', async (req, res) => {
 })
 
 
+
 // GET FROM DB
 app.post('/get', async (req, res) => {
-  authorizeDB()
   const key = req.body.key
   const result = await getFromDB(key)
   if (!result) {
@@ -65,6 +66,19 @@ app.post('/get', async (req, res) => {
   // console.log(result)
   // res.send(JSON.stringify('hello world'))
 })
+
+// generates a random alphanumeric key of given length
+function generateRandomKey(length) {
+  const legalChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'
+  let result = ''
+  for (let i = 0; i < length; ++i) {
+    let d = Math.floor((Math.random() * legalChars.length))
+    result = result.concat(legalChars[d])
+  }
+
+  return result
+}
+
 
 async function writetoDB(obj) {
   const key = obj.key
@@ -81,6 +95,37 @@ async function writetoDB(obj) {
   // console.log(await result.json())
 }
 
+// checks if key is valid
+async function checkNewKey(key) {
+
+  const result = await getFromDB(key)
+  return !result
+}
+
+// gets a clean key
+function getValidKey() {
+  const keyLength = 5
+  let key = generateRandomKey(keyLength)
+
+  // generate legal key
+  while (!checkNewKey(key)) {
+    key = generateRandomKey(keyLength)
+  }
+  console.log(key)
+}
+
+
+
+// only run after authentication works
+function start() {
+  getValidKey()
+
+  app.listen(port, () => {
+    console.log('listening on 3001')
+  })
+}
+
+
 
 async function getFromDB(key) {
   const result = await fetch(`https://fitnessbackend-fad7d-default-rtdb.firebaseio.com/notepad/${key}.json?access_token=${accessToken}`)
@@ -93,8 +138,3 @@ async function getFromDB(key) {
 //   // res.send(JSON.stringify(req.body))
 //   // console.log(JSON.stringify(req.body))
 // })
-
-app.listen(port, () => {
-  console.log('listening on 3001')
-
-})

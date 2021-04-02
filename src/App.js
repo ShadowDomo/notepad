@@ -11,6 +11,7 @@ function App() {
     setData(e.target.value)
   }
 
+  // todo if no key is supplied, generate random key
   //TODO save old state, and compare with new state. helps to prevent sending when data hasn't changed
   // todo make server not receive entire text each update, but only additions
   // todo make scaleable, key in params
@@ -33,7 +34,7 @@ function App() {
     setOldData(data)
   }
 
-  // checks whether the data needs to be updated
+  // checks whether the data needs to be updated 
   function sendIfNeeded() {
     if (oldData !== data) {
       sendToServer()
