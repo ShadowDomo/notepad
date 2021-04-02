@@ -5,6 +5,11 @@ function App() {
   const [oldData, setOldData] = useState('')
   const [key, setKey] = useState('')
   // the save key
+  const prod = process.env.PROD || false
+  const server = 'http://localhost:3000'
+  if (prod) {
+    server = "https://cherry-shortcake-58802.herokuapp.com/"
+  }
 
   async function dataHandler(e) {
     setData(e.target.value)
@@ -18,7 +23,7 @@ function App() {
     // temp
     if (key.length === 0) return
     const payLoad = { key: key, data: data }
-    await fetch('http://localhost:3001/', {
+    await fetch(server, {
       body: JSON.stringify(payLoad),
       headers: {
         'Content-Type': 'application/json'
@@ -41,7 +46,7 @@ function App() {
 
   // gets a fresh key from the server
   async function getFreshKey() {
-    const result = await fetch('http://localhost:3001/generate')
+    const result = await fetch(server + 'generate')
     return await result.json()
   }
 
@@ -78,7 +83,7 @@ function App() {
     // temp 
     if (key.length === 0) return
     const payload = { key: key }
-    const result = await fetch('http://localhost:3001/get', {
+    const result = await fetch(server + 'get', {
       body: JSON.stringify(payload),
       headers: {
         'Content-Type': 'application/json'
