@@ -67,6 +67,13 @@ app.post('/get', async (req, res) => {
   // res.send(JSON.stringify('hello world'))
 })
 
+
+// route for generate key
+app.get('/generate', async (req, res) => {
+  const result = getValidKey()
+  res.send(JSON.stringify(result))
+})
+
 // generates a random alphanumeric key of given length
 function generateRandomKey(length) {
   const legalChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890'
@@ -111,7 +118,7 @@ function getValidKey() {
   while (!checkNewKey(key)) {
     key = generateRandomKey(keyLength)
   }
-  console.log(key)
+  return key
 }
 
 

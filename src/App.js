@@ -3,9 +3,8 @@ import { useState, useEffect } from 'react'
 function App() {
   const [data, setData] = useState('')
   const [oldData, setOldData] = useState('')
-
+  const [key, setKey] = useState('')
   // the save key
-  const key = window.location.pathname.substring(1)
 
   async function dataHandler(e) {
     setData(e.target.value)
@@ -28,7 +27,7 @@ function App() {
       },
       method: 'POST'
     })
-    console.log(await result.json())
+    // console.log(await result.json())
 
     // update the latest saved data
     setOldData(data)
@@ -41,11 +40,27 @@ function App() {
     }
   }
 
+  // gets a fresh key from the server
+  async function getFreshKey() {
+    const result = await fetch('http://localhost:3001/generate')
+    return await result.json()
+  }
+
   // onload set the data to that from server
   useEffect(() => {
+    const currentUrl = window.location.pathname.substring(1)
+    setKey(currentUrl)
+
     const temp = async () => {
-      const serverData = await getFromServer(key)
-      console.log(serverData)
+      if (currentUrl.length === 0) {
+        // generate a new key
+        const newKey = await getFreshKey()
+        setKey(newKey)
+        window.history.pushState({}, null, newKey)
+      }
+
+      const serverData = await getFromServer(currentUrl)
+      // console.log(serverData)
       setData(serverData)
     }
 
