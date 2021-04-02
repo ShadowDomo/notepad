@@ -69,7 +69,8 @@ function App() {
     }
 
     temp()
-  }, [])
+  }, [])// eslint-disable-line react-hooks/exhaustive-deps
+
 
   // improvement, chunk the updates to the server
   useEffect(() => {
