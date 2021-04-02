@@ -10,16 +10,15 @@ function App() {
     setData(e.target.value)
   }
 
-  // todo if no key is supplied, generate random key
-  //TODO save old state, and compare with new state. helps to prevent sending when data hasn't changed
   // todo make server not receive entire text each update, but only additions
   // todo make scaleable, key in params
+
   // saves the notepad periodically
   async function sendToServer() {
     // temp
-    if (key.length == 0) return
+    if (key.length === 0) return
     const payLoad = { key: key, data: data }
-    const result = await fetch('http://localhost:3001/', {
+    await fetch('http://localhost:3001/', {
       body: JSON.stringify(payLoad),
       headers: {
         'Content-Type': 'application/json'
@@ -70,13 +69,14 @@ function App() {
   // improvement, chunk the updates to the server
   useEffect(() => {
     sendIfNeeded()
-  }, [data])
+
+  }, [data])// eslint-disable-line react-hooks/exhaustive-deps
 
 
   // gets data for the given key from server
   async function getFromServer(key) {
     // temp 
-    if (key.length == 0) return
+    if (key.length === 0) return
     const payload = { key: key }
     const result = await fetch('http://localhost:3001/get', {
       body: JSON.stringify(payload),
@@ -94,11 +94,13 @@ function App() {
 
 
   return (
-    <div className="App ">
-      <h1 className='mb-3'>Notepadder</h1>
-      <textarea rows='10' cols='40' value={data} onChange={dataHandler} style={{ width: '90%', height: '90%', resize: 'none' }}></textarea>
-      <h4>Key is: {key}</h4>
-      <button onClick={sendIfNeeded}>clickme</button>
+    <div className="App container h-75 w-100" >
+      <h1 className='mb-3 mt-3 text-white'>Notepadder - {key}</h1>
+      <textarea rows='10' value={data} onInput={dataHandler} style={{
+        width: '100%', height: '100%', resize: 'none',
+        borderRadius: '8px'
+
+      }}></textarea>
     </div>
   );
 
