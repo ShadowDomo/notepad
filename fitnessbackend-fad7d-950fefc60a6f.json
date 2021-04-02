@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "fitnessbackend-fad7d",
+  "private_key_id": "950fefc60a6f4a0ea3cfb5bea30fc0ee3a725d31",
+  "private_key": "",
+  "client_email": "firebase-adminsdk-21mgx@fitnessbackend-fad7d.iam.gserviceaccount.com",
+  "client_id": "105466192793768801847",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-21mgx%40fitnessbackend-fad7d.iam.gserviceaccount.com"
+}

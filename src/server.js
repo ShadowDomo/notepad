@@ -1,19 +1,23 @@
 const express = require('express')
+const dotenv = require('dotenv').config()
 const app = express()
-const port = 3001
+let port = process.env.PORT
+if (port == null || port == "") {
+  port = 3001
+}
 const cors = require('cors')
 const { google } = require('googleapis')
 const fetch = require('node-fetch')
 
-
 // Load the service account key JSON file.
 var serviceAccount = require("../fitnessbackend-fad7d-950fefc60a6f.json");
-
+serviceAccount['private_key'] = process.env.PRIVATE_KEY.replace(/\\n/g, '\n')
 // Define the required scopes.
 var scopes = [
   "https://www.googleapis.com/auth/userinfo.email",
   "https://www.googleapis.com/auth/firebase.database"
 ];
+
 
 let accessToken;
 async function authorizeDB() {
@@ -128,7 +132,7 @@ function start() {
   getValidKey()
 
   app.listen(port, () => {
-    console.log('listening on 3001')
+    console.log(`listening on port ${port}`)
   })
 }
 
