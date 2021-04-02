@@ -5,11 +5,11 @@ function App() {
   const [oldData, setOldData] = useState('')
   const [key, setKey] = useState('')
   // the save key
-  const prod = process.env.PROD || false
-  let server = 'http://localhost:3000'
-  if (prod) {
-    server = "https://cherry-shortcake-58802.herokuapp.com/"
-  }
+
+  let prod = 'https://cherry-shortcake-58802.herokuapp.com/' // eslint-disable-line
+  let localhost = 'http://localhost:3001/' // eslint-disable-line
+
+  let server = prod
 
   async function dataHandler(e) {
     setData(e.target.value)
@@ -17,7 +17,7 @@ function App() {
 
   // todo make server not receive entire text each update, but only additions
   // todo make scaleable, key in params
-
+  // todo use sockets and send updates to all connected users
   // saves the notepad periodically
   async function sendToServer() {
     // temp
