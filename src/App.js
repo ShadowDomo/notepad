@@ -6,7 +6,7 @@ function App() {
   const [key, setKey] = useState('')
   // the save key
   const prod = process.env.PROD || false
-  const server = 'http://localhost:3000'
+  let server = 'http://localhost:3000'
   if (prod) {
     server = "https://cherry-shortcake-58802.herokuapp.com/"
   }
