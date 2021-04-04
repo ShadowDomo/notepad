@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function App() {
   const [data, setData] = useState('')
   const [oldData, setOldData] = useState('')
   const [key, setKey] = useState('')
+
+  const inputBox = useRef(null);
   // the save key
 
   let prod = 'https://cherry-shortcake-58802.herokuapp.com/' // eslint-disable-line
@@ -15,6 +17,7 @@ function App() {
     setData(e.target.value)
   }
 
+  // todo saving icon
   // todo make server not receive entire text each update, but only additions
   // todo make scaleable, key in params
   // todo use sockets and send updates to all connected users
@@ -52,25 +55,36 @@ function App() {
 
   // onload set the data to that from server
   useEffect(() => {
-    const currentUrl = window.location.pathname.substring(1)
-    setKey(currentUrl)
-
-    const temp = async () => {
-      if (currentUrl.length === 0) {
-        // generate a new key
-        const newKey = await getFreshKey()
-        setKey(newKey)
-        window.history.pushState({}, null, newKey)
+    // const currentUrl = window.location.pathname.substring(1)
+    // setKey(currentUrl)
+    const d = async () => {
+      let newKey;
+      if (localStorage.getItem('key')) {
+        newKey = localStorage.getItem('key')
+      } else {
+        newKey = await getFreshKey()
       }
 
-      const serverData = await getFromServer(currentUrl)
-      // console.log(serverData)
+      setKey(newKey)
+      const serverData = await getFromServer(newKey)
       setData(serverData)
+
     }
 
-    temp()
+    d()
+
+    // load()
   }, [])// eslint-disable-line react-hooks/exhaustive-deps
 
+
+  const load = async (e) => {
+    let newKey = inputBox.current.textContent
+
+    setKey(newKey)
+    localStorage.setItem('key', newKey)
+    const serverData = await getFromServer(newKey)
+    setData(serverData)
+  }
 
   // improvement, chunk the updates to the server
   useEffect(() => {
@@ -96,12 +110,22 @@ function App() {
 
   }
 
-
+  function temp2(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      e.target.blur()
+      load()
+      // console.log('saw enter')
+    }
+  }
 
 
   return (
     <div className="App container h-75 w-100" >
-      <h1 className='mb-3 mt-3 text-white'>Notepadder - {key}</h1>
+      <div className='d-flex justify-content-between'>
+        <h1 className='text-white '>Notepadder</h1>
+        <h1 className='text-white' contentEditable='true' ref={inputBox} onKeyDown={temp2} suppressContentEditableWarning={true} onBlur={load}>{key}</h1>
+      </div>
       <textarea rows='10' value={data} onInput={dataHandler} style={{
         width: '100%', height: '100%', resize: 'none',
         borderRadius: '8px'
