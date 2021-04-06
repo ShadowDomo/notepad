@@ -129,8 +129,6 @@ function getValidKey() {
 
 // only run after authentication works
 function start() {
-  getValidKey()
-
   app.listen(port, () => {
     console.log(`listening on port ${port}`)
   })
@@ -142,10 +140,3 @@ async function getFromDB(key) {
   const result = await fetch(`https://fitnessbackend-fad7d-default-rtdb.firebaseio.com/notepad/${key}.json?access_token=${accessToken}`)
   return await result.json()
 }
-
-// app.post('/', (req, res) => {
-//   res.send('gg')
-//   writetoDB(JSON.stringify(req.body))
-//   // res.send(JSON.stringify(req.body))
-//   // console.log(JSON.stringify(req.body))
-// })

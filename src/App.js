@@ -4,6 +4,7 @@ function App() {
   const [data, setData] = useState('')
   const [oldData, setOldData] = useState('')
   const [key, setKey] = useState('')
+  const [loadingStatus, setLoadingStatus] = useState('')
 
   const inputBox = useRef(null);
   // the save key
@@ -20,24 +21,33 @@ function App() {
   // todo saving icon
   // todo make server not receive entire text each update, but only additions
   // todo make scaleable, key in params
+  // todo passwords
   // todo use sockets and send updates to all connected users
+
   // saves the notepad periodically
   async function sendToServer() {
     // temp
     if (key.length === 0) return
+    setLoadingStatus('Saving...')
     const payLoad = { key: key, data: data }
-    await fetch(server, {
-      body: JSON.stringify(payLoad),
-      headers: {
-        'Content-Type': 'application/json'
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      method: 'POST'
-    })
-    // console.log(await result.json())
+    try {
+      await fetch(server, {
+        body: JSON.stringify(payLoad),
+        headers: {
+          'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        method: 'POST'
+      })
+      setOldData(data)
+    } catch (error) {
+      setLoadingStatus('Failed to connect to server. Try again later.')
+      console.log('Failed to send to server')
+      return;
+    }
 
+    setLoadingStatus('Saved!')
     // update the latest saved data
-    setOldData(data)
   }
 
   // checks whether the data needs to be updated 
@@ -67,7 +77,9 @@ function App() {
 
       setKey(newKey)
       const serverData = await getFromServer(newKey)
-      setData(serverData)
+      if (serverData !== false) {
+        setData(serverData)
+      }
 
     }
 
@@ -79,7 +91,7 @@ function App() {
 
   const load = async (e) => {
     let newKey = inputBox.current.textContent
-
+    setLoadingStatus('Loading...')
     setKey(newKey)
     localStorage.setItem('key', newKey)
     const serverData = await getFromServer(newKey)
@@ -95,21 +107,38 @@ function App() {
 
   // gets data for the given key from server
   async function getFromServer(key) {
-    // temp 
     if (key.length === 0) return
     const payload = { key: key }
-    const result = await fetch(server + 'get', {
-      body: JSON.stringify(payload),
-      headers: {
-        'Content-Type': 'application/json'
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      method: 'POST'
-    })
-    return await result.json()
+    let result;
+    try {
+      result = await fetch(server + 'get', {
+        body: JSON.stringify(payload),
+        headers: {
+          'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        method: 'POST'
+      })
+    } catch (error) {
+      setLoadingStatus('Server seems to be offline. Try again later.')
+      console.log(error)
+      return;
+    }
 
+    let jsoned = await result.json()
+    // console.log(jsoned)
+    if (jsoned.hasOwnProperty('error')) {
+      setLoadingStatus('Failed to connect to server')
+      console.log('Error retrieiving data from server')
+      return false
+    }
+
+    setLoadingStatus('Saved!')
+    // console.log(jsoned)
+    return jsoned;
   }
 
+  // handler for changing key
   function temp2(e) {
     if (e.key === 'Enter') {
       e.preventDefault()
@@ -119,9 +148,8 @@ function App() {
     }
   }
 
-
   return (
-    <div className="App container h-75 w-100" >
+    <div className="App container mt-3 h-75 w-100" >
       <div className='d-flex justify-content-between'>
         <h1 className='text-white '>Notepadder</h1>
         <h1 className='text-white' contentEditable='true' ref={inputBox} onKeyDown={temp2} suppressContentEditableWarning={true} onBlur={load}>{key}</h1>
@@ -129,9 +157,16 @@ function App() {
       <textarea rows='10' value={data} onInput={dataHandler} style={{
         width: '100%', height: '100%', resize: 'none',
         borderRadius: '8px'
-
       }}></textarea>
-    </div>
+      <div className='d-flex justify-content-end'>
+        <h6 className='text-white'>{loadingStatus}</h6>
+      </div>
+      <div className='form-group'>
+        <label className='text-white'>Enter password to lock notepad</label>
+        <input type='text' className='form-control' />
+        <button className='btn btn-primary' >Lock</button>
+      </div>
+    </div >
   );
 
 
