@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
+import SHA256 from 'crypto-js/sha256'
 
 function App() {
   const [data, setData] = useState('')
   const [oldData, setOldData] = useState('')
   const [key, setKey] = useState('')
   const [loadingStatus, setLoadingStatus] = useState('')
+  const [password, setPassword] = useState('')
+
 
   const inputBox = useRef(null);
   // the save key
@@ -12,7 +15,7 @@ function App() {
   let prod = 'https://cherry-shortcake-58802.herokuapp.com/' // eslint-disable-line
   let localhost = 'http://localhost:3001/' // eslint-disable-line
 
-  let server = prod
+  let server = localhost
 
   async function dataHandler(e) {
     setData(e.target.value)
@@ -148,6 +151,19 @@ function App() {
     }
   }
 
+
+
+  function passwordHandler() {
+    // hash password
+    const message = password
+    const hash = SHA256(message).toString()
+    console.log(hash)
+
+    // send hash to server
+
+
+  }
+
   return (
     <div className="App container mt-3 h-75 w-100" >
       <div className='d-flex justify-content-between'>
@@ -163,8 +179,8 @@ function App() {
       </div>
       <div className='form-group'>
         <label className='text-white'>Enter password to lock notepad</label>
-        <input type='text' className='form-control' />
-        <button className='btn btn-primary' >Lock</button>
+        <input type='password' className='form-control' value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button className='btn btn-primary mt-2' onClick={passwordHandler}>Lock</button>
       </div>
     </div >
   );
